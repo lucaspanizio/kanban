@@ -14,4 +14,18 @@ export const GlobalStyle = createGlobalStyle`
     line-height: 1.6;
     font-size: 16px;
   } 
+
+  main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  .container {
+    display: flex;
+    gap: 1rem;
+    padding: 2rem;
+  }
 `
