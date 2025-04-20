@@ -4,6 +4,7 @@ export const Wrapper = styled.div`
   flex: 1;
   padding: 16px;
   min-width: 300px;
+  height: min-content;
   border-radius: 8px;
   border: 1px solid #dedede;
   background-color: oklch(96.7% 0.001 286.375);

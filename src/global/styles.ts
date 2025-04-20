@@ -18,14 +18,18 @@ export const GlobalStyle = createGlobalStyle`
   main {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
     height: 100vh;
+
+    h1 {
+      margin-top: 32px;
+    }
   }
 
   .container {
     display: flex;
     gap: 1rem;
-    padding: 2rem;
+    padding: 1rem;
+    overflow: none;
   }
 `
