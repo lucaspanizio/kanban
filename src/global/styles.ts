@@ -1,19 +1,28 @@
 import { createGlobalStyle } from 'styled-components'
 
 export const GlobalStyle = createGlobalStyle`
+  :root {
+    font-family: 'Poppins', sans-serif;
+    font-size: 16px;    
+  }
+
   * {
     margin: 0;
     padding: 0;
+    line-height: 1.6;
     box-sizing: border-box;
   }
 
   body {
-    font-family: 'Poppins', sans-serif;
-    background-color: #f5f5f5;
+    font-size: 0.9rem;
     color: #333;
-    line-height: 1.6;
-    font-size: 16px;
+    background-color: #f5f5f5;
   } 
+
+  a, button {
+    font-size: inherit;
+    font-family: inherit;
+  }
 
   main {
     display: flex;
@@ -28,8 +37,11 @@ export const GlobalStyle = createGlobalStyle`
 
   .container {
     display: flex;
-    gap: 1rem;
-    padding: 1rem;
-    overflow: none;
+    flex-wrap: nowrap;
+    width: 100%;
+    gap: 16px;
+    padding: 16px;
+    overflow-y: none;
+    overflow-x: auto;
   }
 `

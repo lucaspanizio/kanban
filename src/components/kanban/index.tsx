@@ -1,6 +1,3 @@
-import { useCallback, useState } from 'react'
-import { restrictToWindowEdges } from '@dnd-kit/modifiers'
-import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable'
 import {
   closestCorners,
   DndContext,
@@ -14,19 +11,25 @@ import {
   useSensor,
   useSensors,
 } from '@dnd-kit/core'
-import { Column } from './column'
+import { restrictToWindowEdges } from '@dnd-kit/modifiers'
+import { arrayMove, sortableKeyboardCoordinates } from '@dnd-kit/sortable'
+import { useCallback, useState } from 'react'
+
 import { Card, type CardType } from './card'
+import { Column } from './column'
+import { NewColumn } from './new-column'
 
 export type Columns = Record<string, CardType[]>
 
 interface KanbanProps {
   initialData?: Columns
+  isSortable?: boolean
+  allowInclusion?: boolean
 }
 
-export const Kanban = ({ initialData }: KanbanProps) => {
-  // TODO: apresentar uma coluna default quando initialData não for passado
-  const [columns, setColumns] = useState<Columns>(initialData ?? {})
-  const [activeId, setActiveId] = useState<number | null>(null)
+export const Kanban = ({ initialData = {}, isSortable = true, allowInclusion = true }: KanbanProps) => {
+  const [columns, setColumns] = useState<Columns>(initialData)
+  const [activeId, setActiveId] = useState<string | null>(null)
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -36,7 +39,7 @@ export const Kanban = ({ initialData }: KanbanProps) => {
   )
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
-    setActiveId(event.active.id as number)
+    setActiveId(event.active.id as string)
   }, [])
 
   const handleDragOver = useCallback(
@@ -79,26 +82,53 @@ export const Kanban = ({ initialData }: KanbanProps) => {
     [columns],
   )
 
+  const handleAddColumn = useCallback((title: string) => {
+    setColumns((prev) => ({
+      ...prev,
+      [title]: [],
+    }))
+  }, [])
+
+  const handleAddCard = useCallback((colId: string, title: string) => {
+    const newCard: CardType = { id: `${Date.now()}-${Math.random()}`, title }
+    setColumns((prev) => ({
+      ...prev,
+      [colId]: [...prev[colId], newCard],
+    }))
+  }, [])
+
   return (
     <DndContext
-      sensors={sensors}
       collisionDetection={closestCorners}
       modifiers={[restrictToWindowEdges]}
-      onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
-      onDragEnd={handleDragEnd}
+      {...(isSortable && {
+        sensors,
+        onDragStart: handleDragStart,
+        onDragOver: handleDragOver,
+        onDragEnd: handleDragEnd,
+      })}
     >
       <div className="container">
         {Object.keys(columns).map((colId) => (
-          <Column key={colId} id={colId} title={colId.toUpperCase()} cards={columns[colId]} />
+          <Column
+            key={colId}
+            id={colId}
+            title={colId}
+            cards={columns[colId]}
+            isSortable={isSortable}
+            allowInclusion={allowInclusion}
+            onAddCard={handleAddCard}
+          />
         ))}
+
+        {allowInclusion && <NewColumn numberOfCards={0} onSave={handleAddColumn} />}
 
         <DragOverlay>
           {activeId !== null &&
             (() => {
               const col = findColumnId(columns, activeId)!
               const card = columns[col].find((c) => c.id === activeId)!
-              return <Card id={card.id} title={card.title} />
+              return <Card id={card.id} title={card.title} isSortable={isSortable} />
             })()}
         </DragOverlay>
       </div>
@@ -108,22 +138,22 @@ export const Kanban = ({ initialData }: KanbanProps) => {
 
 function withValidDrag<T extends DragOverEvent | DragEndEvent>(
   event: T,
-  callback: (ids: { activeId: number; overId: UniqueIdentifier }) => void,
+  callback: (ids: { activeId: string; overId: UniqueIdentifier }) => void,
 ) {
   const { active, over } = event
   if (!over || active.id === over.id) return
 
-  callback({ activeId: active.id as number, overId: over.id })
+  callback({ activeId: active.id as string, overId: over.id })
 }
 
-function getDragMeta(columns: Columns, activeId: number, overId: UniqueIdentifier) {
+function getDragMeta(columns: Columns, activeId: string, overId: UniqueIdentifier) {
   const fromColId = findColumnId(columns, activeId)!
   const toColId = findColumnId(columns, overId)!
 
   return { fromColId, toColId, isSameColumn: fromColId === toColId }
 }
 
-function updateColumns(columns: Columns, fromCol: string, toCol: string, activeId: number, overId: number | string) {
+function updateColumns(columns: Columns, fromCol: string, toCol: string, activeId: string, overId: UniqueIdentifier) {
   const sourceItems = [...columns[fromCol]]
   const destItems = Array.isArray(columns[toCol]) ? [...columns[toCol]] : []
 
@@ -143,7 +173,7 @@ function updateColumns(columns: Columns, fromCol: string, toCol: string, activeI
   }
 }
 
-export function findColumnId(columns: Columns, id: number | string): string | undefined {
+function findColumnId(columns: Columns, id: number | string) {
   if (typeof id === 'string' && Object.keys(columns).includes(id)) return id
   return Object.keys(columns).find((colId) => columns[colId].some((card) => card.id === id))
 }
