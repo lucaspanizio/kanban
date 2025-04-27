@@ -6,18 +6,19 @@ export function withValidDrag<T extends DragOverEvent | DragEndEvent>(
   callback: (ids: { activeId: string; overId: UniqueIdentifier }) => void,
 ) {
   const { active, over } = event
+  // Nenhum elemento válido sobreposto ou o elemento ativo é o mesmo que o sobreposto
   if (!over || active.id === over.id) return
-
   callback({ activeId: active.id as string, overId: over.id })
 }
 
-export function findColumnIndex(columns: ColumnType[], cardId: number | string) {
-  return columns.findIndex((col) => col.cards.some((card) => card.id === cardId))
-}
+export function getDragMeta(columns: ColumnType[], activeId: string, overId: string) {
+  const findColumnIndex = (id: string) => {
+    if (id.startsWith('column_')) return columns.findIndex((col) => col.id === id)
+    return columns.findIndex((col) => col.cards.some((card) => card.id === id))
+  }
 
-export function getDragMeta(columns: ColumnType[], activeId: string, overId: UniqueIdentifier) {
-  const fromColIndex = findColumnIndex(columns, activeId)
-  const toColIndex = findColumnIndex(columns, overId)
+  const fromColIndex = findColumnIndex(activeId)
+  const toColIndex = findColumnIndex(overId)
 
   return {
     fromColIndex,
@@ -49,4 +50,15 @@ export function updateColumns(
   newColumns[toColIndex] = { ...newColumns[toColIndex], cards: destCards }
 
   return newColumns
+}
+
+export const ensurePrefix = (data: ColumnType[]): ColumnType[] => {
+  return data.map((column) => ({
+    id: `column_${column.id}`,
+    title: column.title,
+    cards: column.cards.map((card) => ({
+      ...card,
+      id: `card_${card.id}`,
+    })),
+  }))
 }

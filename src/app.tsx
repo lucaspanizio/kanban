@@ -2,12 +2,13 @@ import isPropValid from '@emotion/is-prop-valid'
 import { StyleSheetManager } from 'styled-components'
 import { useState } from 'react'
 
-import { Kanban } from '@/components/kanban'
+import { ColumnType, Kanban } from '@/components/kanban'
 import { Switch } from '@/components/switch'
 import { GlobalStyle } from '@/global/styles'
 
-const mockData = [
+const mockData: ColumnType[] = [
   {
+    id: '1',
     title: 'To Do',
     cards: [
       { id: '1', title: 'Definir escopo do projeto' },
@@ -15,6 +16,7 @@ const mockData = [
     ],
   },
   {
+    id: '2',
     title: 'In Progress',
     cards: [
       { id: '3', title: 'Implementar autenticação' },
@@ -22,6 +24,7 @@ const mockData = [
     ],
   },
   {
+    id: '3',
     title: 'Done',
     cards: [
       { id: '5', title: 'Configurar ambiente de desenvolvimento' },
