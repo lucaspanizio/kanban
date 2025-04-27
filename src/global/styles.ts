@@ -14,9 +14,9 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   body {
-    font-size: 0.9rem;
     color: #333;
     background-color: #f5f5f5;
+    font-size: 0.9rem;
   } 
 
   a, button {
@@ -24,14 +24,16 @@ export const GlobalStyle = createGlobalStyle`
     font-family: inherit;
   }
 
-  main {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    height: 100vh;
+  main {    
+    height: calc(100vh - 160px);
+    padding-top: 32px;
+    padding-inline: 24px;    
 
-    h1 {
-      margin-top: 32px;
+    div.settings {
+      display: flex;
+      flex-direction: column;
+      margin-block: 0.75rem;
+      row-gap: 4px;
     }
   }
 
@@ -40,7 +42,9 @@ export const GlobalStyle = createGlobalStyle`
     flex-wrap: nowrap;
     width: 100%;
     gap: 16px;
-    padding: 16px;
+    height: 100%;
+    padding-bottom: 32px;
+    padding-right: 32px;
     overflow-y: none;
     overflow-x: auto;
   }
